@@ -5,15 +5,17 @@
 #include <ESPRotary.h>
 #include <Button2.h>
 
+//Pins
+#define BUTTON_A_PIN D8
+#define BUTTON_B_PIN D5
+#define ROTARY_A_PIN D6
+#define ROTARY_B_PIN D7
+
 //Display
 #define OLED_RESET 0
 Adafruit_SSD1306 display(OLED_RESET); // 64x48 Pixel
 //Rotary
-ESPRotary r = ESPRotary(D5, D6, 5, 0, 255); //pin1, pin2, steps_per_click, min, max
-
-//Pins
-#define BUTTON_A_PIN D2
-#define BUTTON_B_PIN D3
+ESPRotary r = ESPRotary(ROTARY_A_PIN, ROTARY_B_PIN, 5, 0, 255); //pin1, pin2, steps_per_click, min, max
 
 Button2 buttonA = Button2(BUTTON_A_PIN);
 Button2 buttonB = Button2(BUTTON_B_PIN);
@@ -23,8 +25,7 @@ char *outputText[] = {"Main", "Dynaudio", "Alt"};
 byte volume = 100;
 
 byte currentInput = 0;
-byte currentOutput = 1;
-byte currentvolume = 1;
+byte currentOutput = 0;
 
 void setup()
 {
@@ -48,6 +49,8 @@ void setup()
 void loop()
 {
     r.loop();
+    buttonA.loop();
+    buttonB.loop();
 }
 
 void drawCentreString(String buf, int y, int x = 32)
@@ -70,19 +73,16 @@ void setVolume(byte value)
 {
     volume = value;
     r.resetPosition(volume);
-    wDisplay();
 }
 
 void setInput(byte nr)
 {
     currentInput = nr;
-    wDisplay();
 }
 
 void setOutput(byte nr)
 {
     currentOutput = nr;
-    wDisplay();
 }
 
 void wDisplay()
@@ -102,7 +102,7 @@ void click(Button2 &btn)
 {
     if (btn == buttonA)
     {
-        setInput(currentInput + 1);
+        setInput(currentInput > 2 ? 0 : currentInput + 1);
     }
     else if (btn == buttonB)
     {
